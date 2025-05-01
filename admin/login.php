@@ -87,6 +87,7 @@ $conn->close();
     </style>
 </head>
 <body>
+    
     <div class="admin-container">
         <h1>Login de administracion</h1>
         <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
@@ -106,7 +107,7 @@ $conn->close();
         <div class="admin-actions">
             <a href="init_admin.php" class="admin-link">Crear Nuevo Usuario</a>
             
-            <a href="index.php" class="active">Inicio</a>
+            <a href="../index.php" class="admin-link"> Ir al inicio</a>
         </div>
         <?php if ($admin_count == 0): ?>
             <div class="warning">

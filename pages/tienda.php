@@ -2,12 +2,53 @@
 require_once '../includes/db_connection.php';
 require_once '../includes/helpers.php';
 
-// Fetch all products with their main image
+// Inicializar variables de filtro
+$category_filter = isset($_GET['categoria']) ? (int)$_GET['categoria'] : 0;
+$material_filter = isset($_GET['material']) ? (int)$_GET['material'] : 0;
+$price_filter = isset($_GET['precio']) ? (int)$_GET['precio'] : 10000000;
+
+// Construir la consulta base
 $products_query = "SELECT p.*, c.nombre as categoria_nombre, pi.imagen_url 
                   FROM Productos p
-                  LEFT JOIN ProductoImagenes pi ON p.id_producto = pi.id_producto AND pi.orden = 1
-                  LEFT JOIN Categorias c ON p.id_categoria = c.id_categoria";
-$products_result = $conn->query($products_query);
+                  LEFT JOIN ProductoImagenes pi ON p.id_producto = pi.id_producto AND (pi.orden = 1 OR pi.orden IS NULL)
+                  LEFT JOIN Categorias c ON p.id_categoria = c.id_categoria
+                  WHERE 1=1";
+
+// Añadir condiciones de filtro si están presentes
+$params = [];
+$types = "";
+
+if ($category_filter > 0) {
+    $products_query .= " AND p.id_categoria = ?";
+    $params[] = $category_filter;
+    $types .= "i";
+}
+
+if ($material_filter > 0) {
+    $products_query .= " AND p.id_material = ?";
+    $params[] = $material_filter;
+    $types .= "i";
+}
+
+if ($price_filter > 0) {
+    $products_query .= " AND p.precio <= ?";
+    $params[] = $price_filter;
+    $types .= "i";
+}
+
+// Añadir GROUP BY al final de la consulta para evitar duplicados
+$products_query .= " GROUP BY p.id_producto";
+
+// Preparar y ejecutar la consulta
+$stmt = $conn->prepare($products_query);
+if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+}
+$stmt->execute();
+$products_result = $stmt->get_result();
+
+// Para depuración: mostrar cuántos productos se encontraron
+// echo "<p>Se encontraron " . $products_result->num_rows . " productos.</p>";
 
 // Fetch categories
 $categories_query = "SELECT * FROM Categorias";
@@ -16,6 +57,12 @@ $categories_result = $conn->query($categories_query);
 // Fetch materials
 $materials_query = "SELECT * FROM Materiales";
 $materials_result = $conn->query($materials_query);
+
+// Obtener el precio máximo para el rango de precios
+$max_price_query = "SELECT MAX(precio) as max_price FROM Productos";
+$max_price_result = $conn->query($max_price_query);
+$max_price_row = $max_price_result->fetch_assoc();
+$max_price = $max_price_row['max_price'] ?? 5000000;
 
 // Close the connection
 $conn->close();
@@ -31,6 +78,12 @@ function get_image_path($image_url) {
    }
    // If it's a relative path, prepend the correct directory
    return '../' . ltrim($image_url, '/');
+}
+
+// Function to format price in Colombian Pesos
+function format_cop_price($price) {
+    // Convert to Colombian Pesos format (period as thousands separator, comma as decimal)
+    return '$ ' . number_format($price, 0, ',', '.');
 }
 
 // Function to generate star rating HTML
@@ -73,33 +126,34 @@ function generate_stars($rating) {
 </head>
 <body>
    <header>
-       <div class="container">
-           <a href="../index.php" class="logo">
-               <img src="../img/logo.png" alt="Panda Joyeros" width="80">
-           </a>
-           <nav>
-               <ul>
-                   <li><a href="../index.php">Inicio</a></li>
-                   <li><a href="tienda.php" class="active">Tienda</a></li>
-                   <li><a href="quienes-somos.html">Sobre Nosotros</a></li>
-                   <li><a href="contacto.html">Contacto</a></li>
-               </ul>
-           </nav>
-           <div class="user-actions">
-               <button aria-label="Favoritos">
-                   <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                   </svg>
-               </button>
-               <button aria-label="Carrito">
-                   <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                       <circle cx="9" cy="21" r="1"></circle>
-                       <circle cx="20" cy="21" r="1"></circle>
-                       <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                   </svg>
-               </button>
-           </div>
-       </div>
+   <div class="container">
+            <a href="../index.php" class="logo">
+                <img src="../img/logo.png" alt="Panda Joyeros" width="80">
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="../index.php">Inicio</a></li>
+                    <li><a href="tienda.php" class="active">Tienda</a></li>
+                    <li><a href="quienes-somos.html">Quienes somos</a></li>
+                    <li><a href="contacto.html">Contacto</a></li>
+                    <li><a href="../admin/login.php">Administración</a></li>
+                </ul>
+            </nav>
+            <div class="user-actions">
+                <button aria-label="Favoritos">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                </button>
+                <button aria-label="Carrito">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
    </header>
 
    <main class="shop-page">
@@ -116,39 +170,67 @@ function generate_stars($rating) {
                    <aside class="shop-sidebar">
                        <div class="filter-section">
                            <h2>Filtrar por</h2>
-                           <div class="filter-group">
-                               <h3>Categoría</h3>
-                               <ul>
-                                   <?php while ($category = $categories_result->fetch_assoc()): ?>
+                           <form id="filter-form" action="tienda.php" method="get">
+                               <div class="filter-group">
+                                   <h3>Categoría</h3>
+                                   <ul>
                                        <li>
                                            <label>
-                                               <input type="checkbox" name="category" value="<?php echo $category['id_categoria']; ?>">
-                                               <?php echo safe_output($category['nombre']); ?>
+                                               <input type="radio" name="categoria" value="0" <?php echo $category_filter == 0 ? 'checked' : ''; ?>>
+                                               Todas las categorías
                                            </label>
                                        </li>
-                                   <?php endwhile; ?>
-                               </ul>
-                           </div>
-                           <div class="filter-group">
-                               <h3>Material</h3>
-                               <ul>
-                                   <?php while ($material = $materials_result->fetch_assoc()): ?>
-                                       <li>
-                                           <label>
-                                               <input type="checkbox" name="material" value="<?php echo $material['id_material']; ?>">
-                                               <?php echo safe_output($material['nombre']); ?>
-                                           </label>
-                                       </li>
-                                   <?php endwhile; ?>
-                               </ul>
-                           </div>
-                           <div class="filter-group">
-                               <h3>Precio</h3>
-                               <div class="price-range">
-                                   <input type="range" id="price-range" min="0" max="5000" step="100" value="2500">
-                                   <output for="price-range">€2500</output>
+                                       <?php 
+                                       // Reiniciar el puntero del resultado
+                                       $categories_result->data_seek(0);
+                                       while ($category = $categories_result->fetch_assoc()): 
+                                       ?>
+                                           <li>
+                                               <label>
+                                                   <input type="radio" name="categoria" value="<?php echo $category['id_categoria']; ?>" 
+                                                   <?php echo $category_filter == $category['id_categoria'] ? 'checked' : ''; ?>>
+                                                   <?php echo safe_output($category['nombre']); ?>
+                                               </label>
+                                           </li>
+                                       <?php endwhile; ?>
+                                   </ul>
                                </div>
-                           </div>
+                               <div class="filter-group">
+                                   <h3>Material</h3>
+                                   <ul>
+                                       <li>
+                                           <label>
+                                               <input type="radio" name="material" value="0" <?php echo $material_filter == 0 ? 'checked' : ''; ?>>
+                                               Todos los materiales
+                                           </label>
+                                       </li>
+                                       <?php 
+                                       // Reiniciar el puntero del resultado
+                                       $materials_result->data_seek(0);
+                                       while ($material = $materials_result->fetch_assoc()): 
+                                       ?>
+                                           <li>
+                                               <label>
+                                                   <input type="radio" name="material" value="<?php echo $material['id_material']; ?>"
+                                                   <?php echo $material_filter == $material['id_material'] ? 'checked' : ''; ?>>
+                                                   <?php echo safe_output($material['nombre']); ?>
+                                               </label>
+                                           </li>
+                                       <?php endwhile; ?>
+                                   </ul>
+                               </div>
+                               <div class="filter-group">
+                                   <h3>Precio</h3>
+                                   <div class="price-range">
+                                       <input type="range" id="price-range" name="precio" min="0" max="<?php echo $max_price; ?>" step="100000" value="<?php echo $price_filter; ?>">
+                                       <output for="price-range"><?php echo format_cop_price($price_filter); ?></output>
+                                   </div>
+                               </div>
+                               <div class="filter-actions">
+                                   <button type="submit" class="btn btn-primary">Aplicar filtros</button>
+                                   <a href="tienda.php" class="btn btn-secondary">Limpiar filtros</a>
+                               </div>
+                           </form>
                        </div>
                    </aside>
                    <div class="product-grid">
@@ -162,7 +244,10 @@ function generate_stars($rating) {
                                $rating = mt_rand(35, 50) / 10;
                                $rating_count = mt_rand(5, 50);
                        ?>
-                       <div class="product-card">
+                       <div class="product-card" 
+                            data-category="<?php echo $product['id_categoria']; ?>" 
+                            data-material="<?php echo $product['id_material']; ?>" 
+                            data-price="<?php echo $product['precio']; ?>">
                            <?php if ($destacado): ?>
                                <div class="product-badge">Destacado</div>
                            <?php endif; ?>
@@ -199,7 +284,7 @@ function generate_stars($rating) {
                                    <span class="rating-count">(<?php echo $rating_count; ?>)</span>
                                </div>
                                
-                               <p class="price"><?php echo safe_price($product['precio']); ?></p>
+                               <p class="price"><?php echo format_cop_price($product['precio']); ?></p>
                                
                                <div class="product-actions">
                                    <a href="descripcion.php?id=<?php echo $product['id_producto']; ?>" class="view-details">Ver detalles</a>
@@ -217,16 +302,18 @@ function generate_stars($rating) {
                        <?php
                            }
                        } else {
-                           echo "<div class='no-products'><p>No hay productos disponibles en este momento.</p><p>Vuelve pronto para descubrir nuestra nueva colección.</p></div>";
+                           echo "<div class='no-products'><p>No hay productos disponibles con los filtros seleccionados.</p><p>Intenta con otros criterios de búsqueda.</p></div>";
                        }
                        ?>
                    </div>
                </div>
+               <?php if ($products_result && $products_result->num_rows > 0): ?>
                <div class="pagination">
                    <button class="prev" disabled>Anterior</button>
-                   <span class="current-page">Página 1 de 3</span>
-                   <button class="next">Siguiente</button>
+                   <span class="current-page">Página 1 de 1</span>
+                   <button class="next" disabled>Siguiente</button>
                </div>
+               <?php endif; ?>
            </div>
        </section>
    </main>
@@ -273,11 +360,13 @@ function generate_stars($rating) {
        </div>
    </footer>
 
-   <script src="../js/main.js"></script>
    <script>
        // Script para actualizar el valor del rango de precio
        document.getElementById('price-range').addEventListener('input', function() {
-           document.querySelector('output[for="price-range"]').textContent = '€' + this.value;
+           const value = parseInt(this.value);
+           // Formatear el valor como pesos colombianos
+           const formattedValue = '$ ' + value.toLocaleString('es-CO');
+           document.querySelector('output[for="price-range"]').textContent = formattedValue;
        });
        
        // Script para la vista rápida (simulado)
@@ -304,6 +393,13 @@ function generate_stars($rating) {
                        this.style.color = '#555';
                    }
                }
+           });
+       });
+
+       // Filtrado en tiempo real (opcional, complementa el filtrado del servidor)
+       document.querySelectorAll('input[name="categoria"], input[name="material"]').forEach(input => {
+           input.addEventListener('change', function() {
+               document.getElementById('filter-form').submit();
            });
        });
    </script>

@@ -135,7 +135,7 @@ if (!$product) {
                </div>
                <div class="prod-info">
                    <h1 class="prod-title"><?php echo safe_output($product['nombre']); ?></h1>
-                   <p class="prod-price">€<?php echo number_format($product['precio'], 2); ?></p>
+                   <p class="prod-price">$<?php echo number_format($product['precio'], 2, ',', '.'); ?></p>
                    <div class="prod-rating">
                        <span class="prod-stars">★★★★★</span>
                        <span class="prod-reviews">(25 reseñas)</span>
@@ -177,7 +177,7 @@ if (!$product) {
                             alt="<?php echo safe_output($related_product['nombre']); ?>"
                             onerror="this.onerror=null; this.src='../img/placeholder.jpg';">
                        <h3><?php echo safe_output($related_product['nombre']); ?></h3>
-                       <p class="prod-related-price">€<?php echo number_format($related_product['precio'], 2); ?></p>
+                       <p class="prod-related-price">$<?php echo number_format($related_product['precio'], 2, ',', '.'); ?></p>
                        <a href="descripcion.php?id=<?php echo $related_product['id_producto']; ?>" class="prod-view-product">Ver Producto</a>
                    </div>
                    <?php endforeach; ?>
