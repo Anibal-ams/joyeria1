@@ -1,0 +1,145 @@
+*{
+
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    
+    background-image:url(../uploads/fondo3.jpg);
+    background-size: cover;
+    align-items: center;
+    min-height: 100vh;
+    background-position: center;
+   
+}
+
+.contact-page {
+    padding: 4rem 0;
+    color: rgb(242, 248, 245);
+}
+
+.contact-title {
+    color: rgb(184, 228, 22);
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.contact-grid {
+    color: rgb(246, 239, 239);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+}
+
+.contact-section {
+    margin-bottom: 2rem;
+    
+}
+
+.contact-section-title {
+    font-size: 1.8rem;
+    color: var(--secondary-color);
+    margin-bottom: 1.5rem;
+    color: rgb(212, 255, 0);
+}
+
+.contact-form-group {
+    width: 400px;
+    margin-bottom: 1.5rem;
+    background: transparent;
+    backdrop-filter: blur(5px);
+    box-shadow:  0 0 10px rgba(0, 0, 0, .2);
+    color: #fff;
+   
+
+}
+
+.contact-form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.contact-form-input,
+.contact-form-textarea {
+    
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #b22424;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.contact-form-textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+.contact-submit-button {
+    background-color: var(--primary-color);
+    color: rgb(222, 240, 213);
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.contact-submit-button:hover {
+    background-color: var(--accent-color);
+}
+
+.contact-info-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.contact-info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.contact-info-icon {
+    margin-right: 1rem;
+    color: var(--primary-color);
+}
+
+.contact-social-media {
+    color: rgb(216, 233, 227);
+    margin-top: 2rem;
+}
+
+.contact-social-title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.contact-social-icons {
+    color: azure;
+    display: flex;
+    gap: 1rem;
+}
+
+.contact-social-link {
+ 
+    color: var(--secondary-color);
+    transition: color 0.3s ease;
+}
+
+.contact-social-link:hover {
+    color: var(--primary-color);
+    
+}
+
+@media (max-width: 768px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

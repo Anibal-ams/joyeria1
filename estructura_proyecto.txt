@@ -1,0 +1,90 @@
+└── 📁 admin
+    ├── 📄 categories.php
+    ├── 📄 dashboard.php
+    ├── 📄 delete_product.php
+    ├── 📄 init_admin.php
+    ├── 📄 login.php
+    ├── 📄 logout.php
+    ├── 📄 manage_users.php
+    ├── 📄 materials.php
+    ├── 📄 products.php
+└── 📁 css
+    ├── 📄 about.css
+    ├── 📄 admin-styles.css
+    ├── 📄 contact.css
+    ├── 📄 description.css
+    ├── 📄 shop.css
+    ├── 📄 styles.css
+└── 📄 estructura_proyecto.js
+└── 📁 includes
+    ├── 📄 db_connection.php
+    ├── 📄 helpers.php
+└── 📄 index.html
+└── 📁 js
+    ├── 📄 contact.js
+    ├── 📄 description.js
+    ├── 📄 main.js
+    ├── 📄 script.js
+    ├── 📄 shop.js
+└── 📁 pages
+    ├── 📄 contacto.html
+    ├── 📄 descripcion.php
+    ├── 📄 quienes-somos.html
+    ├── 📄 tienda.php
+└── 📄 panda_bd.sql
+└── 📁 uploads
+    └── 📄 1.jpg
+    └── 📄 12.jpg
+    └── 📄 13.jpg
+    └── 📄 6781bf8a715c5.png
+    └── 📄 6781bf8a71a1f.png
+    └── 📄 6781c34787b4c.png
+    └── 📄 6781c8ec15087.png
+    └── 📄 67a59561f228e.jpg
+    └── 📄 67a595de43c96.jpg
+    └── 📄 67a596df40b7d.jpg
+    └── 📄 67a597f5da5b5.png
+    └── 📄 67a5982301190.png
+    └── 📄 67a59ac28017c.jpg
+    └── 📄 67a59b6cce2de.jpg
+    └── 📄 67a59e3286b03.jpg
+    └── 📄 67a7977c3ed15.jpg
+    └── 📄 67a79802ded68.jpg
+    └── 📄 67a798b80acff.jpg
+    └── 📄 67a799a4da36e.jpg
+    └── 📄 67a79a3fcf9fa.jpg
+    └── 📄 67a79a9685d90.jpg
+    └── 📄 67a79b7adc3a2.jpg
+    └── 📄 67a79c8c3d1f0.jpg
+    └── 📄 Anibal.png
+    └── 📁 anillos
+        ├── 📄 Anillo1jpg.jpg
+        ├── 📄 Anillo2.jpg
+        ├── 📄 Anillo3jpg.jpg
+    └── 📁 cadenas
+        ├── 📄 Cadena1.jpg
+        ├── 📄 cadena2.jpg
+        ├── 📄 Cadena3.jpg
+    └── 📄 diamante.jpg
+    └── 📄 f.png
+    └── 📄 favicon.png
+    └── 📄 fon.jpg
+    └── 📄 fondo.jpg
+    └── 📄 fondo1.jpg
+    └── 📄 fondo2.jpg
+    └── 📄 fondo3.jpg
+    └── 📄 Jonatan.png
+    └── 📄 luna.jpg
+    └── 📄 p.jpg
+    └── 📄 Panda.png
+    └── 📄 pandalo.png
+    └── 📄 plata.jpg
+    └── 📁 productos destacados
+        ├── 📄 Anillo1.jpg
+        ├── 📄 anillo2.jpg
+        ├── 📄 Anillo3.png
+    └── 📄 Pulsera3.png
+    └── 📁 pulseras
+        └── 📄 Pulsera1.jpg
+        └── 📄 pulsera2.jpg
+        └── 📄 pulsera3.jpg
