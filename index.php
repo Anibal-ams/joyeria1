@@ -33,7 +33,7 @@ $conn->close();
             <a href="index.php" class="logo">
                 <img src="img/logo.png" alt="Panda Joyeros" width="80">
             </a>
-            <nav>
+            <!-- <nav>
                 <ul>
                     <li><a href="index.php" class="active">Inicio</a></li>
                     <li><a href="pages/tienda.php">Tienda</a></li>
@@ -41,7 +41,7 @@ $conn->close();
                     <li><a href="pages/contacto.html">Contacto</a></li>
                     <li><a href="admin/login.php">Administración</a></li>
                 </ul>
-            </nav>
+            </nav> -->
             <div class="user-actions">
                 <button aria-label="Favoritos">
                     <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
