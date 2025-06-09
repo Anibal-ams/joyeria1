@@ -1,12 +1,14 @@
 <?php
 session_start();
 require_once __DIR__ . '/../includes/db_connection.php';
+require_once __DIR__ . '/../includes/helpers.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $password = $_POST['password'];
     
-    $query = "SELECT * FROM Administradores WHERE username = ?";
+    // CORREGIDO: cambiado de "Administradores" a "administradores" (minúsculas)
+    $query = "SELECT * FROM administradores WHERE username = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -26,7 +28,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 // Verificar si ya existe un usuario administrador
-$check_query = "SELECT COUNT(*) as count FROM Administradores";
+// CORREGIDO: cambiado de "Administradores" a "administradores" (minúsculas)
+$check_query = "SELECT COUNT(*) as count FROM administradores";
 $result = $conn->query($check_query);
 $admin_count = $result->fetch_assoc()['count'];
 
@@ -38,12 +41,10 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Login de administracion - Pnada joyeros</title>
+    <title>Login de administración - Panda Joyeros</title>
     <link rel="stylesheet" href="../css/admin-styles.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
-
-
         .init-admin-button {
             margin-top: 20px;
             padding: 10px 15px;
@@ -89,12 +90,12 @@ $conn->close();
 <body>
     
     <div class="admin-container">
-        <h1>Login de administracion</h1>
+        <h1>Login de administración</h1>
         <?php if (isset($error)) echo "<p class='error'>$error</p>"; ?>
         <form method="POST" action="">
             <div class="form-group">
                 <label for="username">Usuario:</label>
-                <input type="text" id="username"    name="username" required >
+                <input type="text" id="username" name="username" required >
                 <i class='bx bxs-user'></i>
             </div>
             <div class="form-group">
@@ -118,4 +119,3 @@ $conn->close();
     </div>
 </body>
 </html>
-

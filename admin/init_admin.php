@@ -3,7 +3,7 @@ require_once '../includes/db_connection.php';
 
 // Crear la tabla Administradores si no existe
 $create_table_query = "
-CREATE TABLE IF NOT EXISTS Administradores (
+CREATE TABLE IF NOT EXISTS administradores (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
@@ -17,7 +17,7 @@ if ($conn->query($create_table_query) === TRUE) {
 }
 
 // Verificar el número de administradores existentes
-$check_query = "SELECT COUNT(*) as count FROM Administradores";
+$check_query = "SELECT COUNT(*) as count FROM administradores";
 $result = $conn->query($check_query);
 $admin_count = $result->fetch_assoc()['count'];
 
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $query = "INSERT INTO Administradores (username, password) VALUES (?, ?)";
+        $query = "INSERT INTO administradores (username, password) VALUES (?, ?)";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("ss", $username, $hashed_password);
 

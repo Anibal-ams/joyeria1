@@ -1,14 +1,25 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 // Incluir archivos necesarios
 require_once 'includes/db_connection.php';
 require_once 'includes/helpers.php';
 
-// Consulta para obtener productos destacados
-$featured_query = "SELECT p.*, GROUP_CONCAT(pi.imagen_url ORDER BY pi.orden ASC SEPARATOR '|') AS imagenes
-                 FROM Productos p
-                 LEFT JOIN ProductoImagenes pi ON p.id_producto = pi.id_producto
+// Consulta para obtener productos destacados - CORREGIDA para usar producto_imagenes
+$featured_query = "SELECT p.*, c.nombre AS categoria_nombre, m.nombre AS material_nombre,
+                 GROUP_CONCAT(
+                    DISTINCT CONCAT(pi.ruta_imagen, '|', COALESCE(pi.orden, 999))
+                    ORDER BY COALESCE(pi.orden, 999) ASC
+                    SEPARATOR '|'
+                 ) AS imagenes
+                 FROM productos p
+                 LEFT JOIN producto_imagenes pi ON p.id_producto = pi.id_producto
+                 LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
+                 LEFT JOIN materiales m ON p.id_material = m.id_material
                  WHERE p.destacado = 1
                  GROUP BY p.id_producto
+                 ORDER BY p.fecha_adicion DESC
                  LIMIT 3";
 
 // Ejecutar la consulta
@@ -16,6 +27,23 @@ $featured_result = $conn->query($featured_query);
 
 // Cerrar la conexión
 $conn->close();
+
+// Función para obtener la ruta de la imagen
+function get_image_path($image_url) {
+    if (empty($image_url)) {
+        return 'img/no-image.png';
+    }
+    
+    // Si es una URL completa, devolverla tal como está
+    if (strpos($image_url, 'http') === 0) {
+        return $image_url;
+    }
+    
+    // Si es una ruta relativa, construir la ruta correcta
+    // Remover cualquier '../' al inicio y agregar '../' una sola vez
+    $clean_path = ltrim($image_url, './');
+    return $clean_path;
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -25,6 +53,7 @@ $conn->close();
     <title>Panda Joyeros - Joyería Elegante</title>
     <link rel="icon" href="img/favicon.png" type="image/png">
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/hero-background.css">
     <script src="js/main.js" defer></script>
 </head>
 <body>
@@ -60,7 +89,8 @@ $conn->close();
     </header>
 
     <main>
-        <section class="hero">
+        <section class="hero hero-with-background">
+            <div class="hero-overlay"></div>
             <div class="container">
                 <h1>Elegancia y calidad</h1>
                 <p>Descubre nuestra exclusiva colección de joyas que combina artesanía tradicional con diseños contemporáneos</p>
@@ -75,7 +105,27 @@ $conn->close();
                     <?php
                     if (isset($featured_result) && $featured_result && $featured_result->num_rows > 0) {
                         while($row = $featured_result->fetch_assoc()) {
-                            $imagenes = isset($row['imagenes']) && !empty($row['imagenes']) ? explode('|', $row['imagenes']) : [];
+                            // Procesar imágenes
+                            $imagenes = [];
+                            if (isset($row['imagenes']) && !empty($row['imagenes'])) {
+                                $imagenes_raw = explode('|', $row['imagenes']);
+                                foreach ($imagenes_raw as $img) {
+                                    if (!empty($img)) {
+                                        $imagenes[] = $img;
+                                    }
+                                }
+                            }
+                            
+                            // Si no hay imágenes en producto_imagenes, usar imagen_url de productos
+                            if (empty($imagenes) && !empty($row['imagen_url'])) {
+                                $imagenes[] = $row['imagen_url'];
+                            }
+                            
+                            // Si aún no hay imágenes, usar placeholder
+                            if (empty($imagenes)) {
+                                $imagenes[] = 'img/no-image.png';
+                            }
+                            
                             $nombre = htmlspecialchars($row['nombre'] ?? 'Producto sin nombre', ENT_QUOTES, 'UTF-8');
                             $descripcion = htmlspecialchars($row['descripcion'] ?? 'Sin descripción', ENT_QUOTES, 'UTF-8');
                             $precio = function_exists('safe_price') ? safe_price($row['precio']) : number_format($row['precio'] ?? 0, 2, ',', '.') . ' €';
@@ -90,10 +140,11 @@ $conn->close();
                         <div class="product-images">
                             <?php if (!empty($imagenes)): ?>
                                 <?php foreach ($imagenes as $index => $imagen): ?>
-                                    <img src="<?php echo htmlspecialchars($imagen, ENT_QUOTES, 'UTF-8') ?: 'img/no-image.png'; ?>" 
+                                    <img src="<?php echo htmlspecialchars(get_image_path($imagen), ENT_QUOTES, 'UTF-8'); ?>" 
                                          alt="<?php echo $nombre; ?> - Imagen <?php echo $index + 1; ?>"
                                          class="<?php echo $index === 0 ? 'active' : ''; ?>"
-                                         loading="lazy">
+                                         loading="lazy"
+                                         onerror="this.onerror=null; this.src='img/no-image.png';">
                                 <?php endforeach; ?>
                                 
                                 <?php if (count($imagenes) > 1): ?>
@@ -134,7 +185,6 @@ $conn->close();
                                 <a href="pages/descripcion.php?id=<?php echo $id; ?>" class="buy-button">
                                     Ver Detalles
                                     <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-                                        <line x1="5  stroke-width="2" fill="none">
                                         <line x1="5" y1="12" x2="19" y2="12"></line>
                                         <polyline points="12 5 19 12 12 19"></polyline>
                                     </svg>
